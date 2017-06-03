@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<T3locallang>
+	<meta type="array">
+		<description>plugin description</description>
+		<type>module</type>
+		<csh_table></csh_table>
+		<fileId>EXT:import/locallang.xml</fileId>
+		<labelContext type="array">
+			<label index="moduleFunction.tx_import_modfunc1"></label>
+		</labelContext>
+	</meta>
+	<data type="array">
+		<languageKey index="default" type="array">
+			<label index="moduleFunction.tx_import_modfunc1">Import functions</label>
+		</languageKey>
+		<languageKey index="de" type="array">
+			<label index="moduleFunction.tx_import_modfunc1">verschiedene Importe</label>
+		</languageKey>
+	</data>
+</T3locallang>
