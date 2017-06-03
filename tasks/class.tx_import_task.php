@@ -53,24 +53,12 @@ class tx_import_Task extends tx_scheduler_Task {
 	 * @return boolean
 	 */
 	public function execute () {
-
-// 	require_once(t3lib_extMgm::extPath('import_tt_products') . 'api/class.tx_importttproducts_api.php');
-// $errorFile = tx_fhdebug::getErrorLogFilename();
-// error_log('tx_import_Task::execute', 3, $errorFile);
-
 		$result = FALSE;
-debugBegin();
-
-debug($this->pid, 'tx_import_Task execute Start $this->pid');
 		if (isset($this->filenameArray) && is_array($this->filenameArray)) {
 			foreach ($this->filenameArray as $tableFileArray) {
-debug($tableFileArray, 'tx_import_Task execute $tableFileArray');
 				$tablename = $tableFileArray['table'];
-debug($tablename, 'tx_import_Task execute $tablename');
 				$filename = $tableFileArray['file'];
-debug ($filename, 'tx_import_Task execute $filename');
 				$extKey = $tableFileArray['extKey'];
-debug ($extKey, 'tx_import_Task execute $extKey');
 				$result = TRUE;
 
 				if (t3lib_extMgm::isLoaded($extKey)) {
@@ -94,7 +82,6 @@ debug ($extKey, 'tx_import_Task execute $extKey');
 						$result = FALSE;
 					}
 				}
-debug($failure, 'tx_import_Task $failure nach import' );
 
 				if ($failure instanceof Exception) {
 						// Log failed execution
@@ -106,18 +93,13 @@ debug($failure, 'tx_import_Task $failure nach import' );
 						1,
 						$failure->getCode()
 					);
-
-debug($logMessage, 'tx_import_Task $logMessage' );
 				}
 
 				if ($result === FALSE) {
-debug($result, 'tx_import_Task $result break ***' );
 					break;
 				}
 			}
 		}
-debug($result, 'tx_import_Task execute ENDE $result' );
-debugEnd();
 
 		return $result;
 	}
@@ -136,4 +118,3 @@ if (defined('TYPO3_MODE') && isset($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLA
 	include_once($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/import/tasks/class.tx_import_task.php']);
 }
 
-?>

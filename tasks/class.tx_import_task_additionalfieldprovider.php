@@ -51,10 +51,6 @@ class tx_import_Task_AdditionalFieldProvider implements tx_scheduler_AdditionalF
 		$task,
 		tx_scheduler_Module $parentObject
 	) {
-debugBegin();
-debug ($taskInfo, 'getAdditionalFields Start $taskInfo');
-debug ($task, 'getAdditionalFields Start $task ');
-debug ($task->filenameArray, '$task->filenameArray');
 		$hookObjectsArray = tx_import_api::getHookArray();
 
 			// Write the code for the field
@@ -68,7 +64,6 @@ debug ($task->filenameArray, '$task->filenameArray');
 				$pid = tx_import_api::getPid(
 					$hookObjectsArray
 				);
-debug ($pid, 'getAdditionalFields $pid');
 					// In case of new task and if field is empty, set default page id
 				$taskInfo['import']['pid'] = $pid;
 			} elseif ($parentObject->CMD == 'edit') {
@@ -94,8 +89,6 @@ debug ($pid, 'getAdditionalFields $pid');
 			$globalTableFileArray,
 			$menuItems
 		);
-debug ($globalTableFileArray, 'getAdditionalFields $globalTableFileArray ');
-debug ($menuItems, 'getAdditionalFields $menuItems ');
 
 		if (
 			isset($globalTableFileArray) &&
@@ -103,7 +96,6 @@ debug ($menuItems, 'getAdditionalFields $menuItems ');
 			isset($menuItems) &&
 			is_array($menuItems)
 		) {
-debug ($taskInfo['import'], '$taskInfo[\'import\']');
 			foreach ($globalTableFileArray as $k => $tableArray) {
 				$tablename = $tableArray['table'];
 
@@ -132,8 +124,6 @@ debug ($taskInfo['import'], '$taskInfo[\'import\']');
 			}
 		}
 
-debug ($taskInfo, 'getAdditionalFields ENDE $taskInfo');
-debugEnd();
 		return $additionalFields;
 	}
 
@@ -262,7 +252,6 @@ debugEnd();
 		array $submittedData,
 		tx_scheduler_Task $task
 	) {
-debugBegin();
 		$task->pid = intval($submittedData['import']['pid']);
 
 		$hookObjectsArray = tx_import_api::getHookArray();
@@ -279,7 +268,6 @@ debugBegin();
 			is_array($menuItems)
 		) {
 			$filenameArray = array();
-debug ($globalTableFileArray, 'saveAdditionalFields $globalTableFileArray');
 			foreach ($globalTableFileArray as $k => $tableArray) {
 				$tablename = $tableArray['table'];
 				$extKey = $tableArray['extKey'];
@@ -292,7 +280,6 @@ debug ($globalTableFileArray, 'saveAdditionalFields $globalTableFileArray');
 
 			$task->filenameArray = $filenameArray;
 		}
-debugEnd();
 	}
 }
 
@@ -300,4 +287,3 @@ if (defined('TYPO3_MODE') && isset($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLA
 	include_once($GLOBALS['TYPO3_CONF_VARS'][TYPO3_MODE]['XCLASS']['ext/import/tasks/class.tx_import_task_additionalfieldprovider.php']);
 }
 
-?>

@@ -128,7 +128,6 @@ class tx_import_modfunc1 extends t3lib_extobjbase {
 											$pid,
 											$failure
 										);
-debug ($importContent, '$importContent Pos 1');
 
 										if ($failure instanceof Exception) {
 											$renderCharset = '';
@@ -174,4 +173,3 @@ if (defined('TYPO3_MODE') && $TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/import/
 	include_once($TYPO3_CONF_VARS[TYPO3_MODE]['XCLASS']['ext/import/modfunc1/class.tx_import_modfunc1.php']);
 }
 
-?>
