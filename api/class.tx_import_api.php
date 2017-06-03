@@ -43,8 +43,6 @@ class tx_import_api {
 	static public function getHookArray () {
 		$hookObjectsArray = array();
 
-debug ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/import/modfunc1/class.tx_import_modfunc1.php']['addClass'], 'getHookArray $GLOBALS[\'TYPO3_CONF_VARS\'][\'SC_OPTIONS\'][\'ext/import/modfunc1/class.tx_import_modfunc1.php\'][\'addClass\']');
-
 		if (
 			isset($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/import/modfunc1/class.tx_import_modfunc1.php']['addClass']) &&
 			is_array ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/import/modfunc1/class.tx_import_modfunc1.php']['addClass'])
@@ -55,8 +53,6 @@ debug ($GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['ext/import/modfunc1/class.tx_i
 				$hookObjectsArray[] = $addObj;
 			}
 		}
-
-debug ($hookObjectsArray, 'getHookArray ENDE $hookObjectsArray');
 
 		return $hookObjectsArray;
 	}
@@ -84,10 +80,8 @@ debug ($hookObjectsArray, 'getHookArray ENDE $hookObjectsArray');
 	) {
 		$globalTableFileArray = array();
 		$menuItems = array();
-debug ($hookObjectsArray, 'getMenuAndFiles $hookObjectsArray');
 
 		foreach($hookObjectsArray as $hookObject) {
-debug ($hookObject, 'getMenuAndFiles $hookObject');
 			$tableFileArray = $hookObject->getTableFileArray();
 			$extKey = $hookObject->getExtKey();
 
@@ -100,9 +94,6 @@ debug ($hookObject, 'getMenuAndFiles $hookObject');
 				}
 			}
 		}
-
-debug ($tableFileArray, 'getMenuAndFiles ENDE $tableFileArray');
 	}
 }
 
-?>
