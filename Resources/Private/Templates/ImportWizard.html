@@ -1,0 +1,20 @@
+<h1><f:translate key="{LLPrefix}wizard.importSelectedTable"/></h1>
+<div>
+    <h3>{f:translate(key: '{LLPrefix}moduleFunction.import')}</h3>
+    <div class="form-group">
+    <f:for each="{menu}" as="menuEntry" key="table" iteration="iterator">
+        <div class="checkbox">
+            <label for="importIntoTable">
+                <input type="checkbox" name="import-table[]" id="import-{iterator.cycle}" value="{table}">
+                {menuEntry}
+            </label>
+        </div>
+    </f:for>
+    <input type="submit" name="execute" value="Submit">
+    </div>
+
+    <f:if condition="{cshItem}">
+        <span class="btn btn-default btn-sm">{cshItem -> f:format.raw()}</span>
+    </f:if>
+</div>
+
