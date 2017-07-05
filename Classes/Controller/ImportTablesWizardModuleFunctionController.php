@@ -64,26 +64,17 @@ class ImportTablesWizardModuleFunctionController extends \TYPO3\CMS\Backend\Modu
                     $menu
                 )
             );
-debug ($_REQUEST, '$_REQUEST +++');
 
         if (
             isset($slotResult) &&
             is_array($slotResult)
         ) {
-        debug ($slotResult['1'], '$slotResult 1');
-        debug ($slotResult['2'], '$slotResult 2');
             if (isset($slotResult['1'])) {
                 $menu = $slotResult['1'];
             }
-//             if (isset($slotResult['2'])) {
-//                 $files = $slotResult['2'];
-//             }
         }
-        debug ($menu, '$menu');
 
         $execute = GeneralUtility::_GP('execute');
-        debug ($execute, '$execute');
-        debug ($this->pObj->id, 'pid +++');
 
         if ($execute) {
             $requiredTables = GeneralUtility::_GP('import-table');
@@ -94,8 +85,6 @@ debug ($_REQUEST, '$_REQUEST +++');
                     $importTables[] = $table;
                 }
             }
-
-        debug ($importTables, '$importTables +++');
 
             $view->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName(
                 'EXT:' . IMPORT_EXT . '/Resources/Private/Templates/ImportFinished.html'
@@ -124,18 +113,12 @@ debug ($_REQUEST, '$_REQUEST +++');
             ));
 
             $assigns['menu'] = $menu;
-            debug ($assigns, '$assigns +++');
         }
 
         $view->assignMultiple($assigns);
         $out = $view->render();
-
-        debug ($out, '$out +++');
-
-//         $out = '<p>Importiere in die Tabellen von TYPO3</p>';
         return $out;
     }
-
 
     /**
      * Returns LanguageService

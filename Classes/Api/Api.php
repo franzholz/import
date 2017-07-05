@@ -51,8 +51,6 @@ class Api {
         $firstLineFieldnames = FALSE
     )
     {
-     debug ($pid, 'importTableFile $pid');
-
         $result = false;
 
         if (
@@ -75,13 +73,10 @@ class Api {
                     $header
                 ) {
                     $keysRow = $row;
-                debug ($keysRow, '$keysRow +++');
                     $headerRow = array_flip($keysRow);
                     $header = false;
-                debug ($headerRow, '$headerRow +++');
                     continue;
                 }
-                debug ($row, '$row vorher');
                 if ($keysRow) {
                     $row = array_combine($keysRow, $row);
                 }
@@ -98,24 +93,20 @@ class Api {
                             $mode
                         )
                     );
-                debug ($slotResult, '$slotResult +++');
 
-                debug ($headerRow['uid'], '$headerRow[\'uid\']');
                 if (isset($headerRow['uid'])) {
                     $where_clause = 'uid=' . intval($row['uid']);
-                debug ($where_clause, '$where_clause +++');
                     $currentRow = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
                         'uid',
                         $tableName,
                         $where_clause
                     );
-                debug ($currentRow, '$currentRow +++');
+
                     if ($currentRow) {
                         continue;
                     }
                 }
                 // TODO: insert the row into the table
-
             }
 
             fclose($file);

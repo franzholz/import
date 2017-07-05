@@ -59,7 +59,6 @@ class ExampleSlots implements \TYPO3\CMS\Core\SingletonInterface
         array $paramTables
     )
     {
-        debug ($paramTables, 'import $paramTables +++');
             // Rendering of the output via fluid
         $api = GeneralUtility::makeInstance(Api::class);
 
@@ -70,9 +69,7 @@ class ExampleSlots implements \TYPO3\CMS\Core\SingletonInterface
                     GeneralUtility::getFileAbsFileName(
                         'EXT:' . IMPORT_EXT . '/Resources/Private/Files/' . $table . '.csv'
                     );
-        debug ($file, 'import $file +++');
                 $api->importTableFile($table, $file, $pid, ',', '"', 0, true);
-
             }
         }
     }
@@ -90,9 +87,6 @@ class ExampleSlots implements \TYPO3\CMS\Core\SingletonInterface
         $mode
     )
     {
-     debug ($tableName, 'processImport $tableName');
-     debug ($row, '$row');
-
         $result = array(
             $tableName,
             $row,
