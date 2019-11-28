@@ -26,6 +26,8 @@ namespace JambageCom\Import\Api;
  *
  */
 
+use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 
 class Api {
     /**
@@ -38,7 +40,7 @@ class Api {
      */
     public function __construct ()
     {
-        $this->signalSlotDispatcher = \TYPO3\CMS\Core\Utility\GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
+        $this->signalSlotDispatcher = GeneralUtility::makeInstance(\TYPO3\CMS\Extbase\SignalSlot\Dispatcher::class);
     }
 
     public function importTableFile (
@@ -48,7 +50,7 @@ class Api {
         $separator = ',',
         $enclosure = '"',
         $mode = 0,
-        $firstLineFieldnames = FALSE
+        $firstLineFieldnames = false
     )
     {
         $result = false;

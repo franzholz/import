@@ -19,9 +19,9 @@ use TYPO3\CMS\Core\Utility\GeneralUtility;
 use JambageCom\Import\Api\Api;
 
 /**
- * Class for example slots to import files into TYPO3 tables
+ * Class for example slots to import files into TYPO3 tables based on the Function Module
  */
-class ExampleSlots implements \TYPO3\CMS\Core\SingletonInterface
+class ExampleFunctionSlots implements \TYPO3\CMS\Core\SingletonInterface
 {
     protected $tables = array('pages', 'tt_content');
 
@@ -97,5 +97,4 @@ class ExampleSlots implements \TYPO3\CMS\Core\SingletonInterface
         return $result;
     }
 }
-
 

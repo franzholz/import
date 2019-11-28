@@ -5,6 +5,9 @@
         <trans-unit id="moduleFunction.import" xml:space="preserve">
             <source>Import into database tables.</source>
         </trans-unit>
+        <trans-unit id="moduleFunction.importFinished" xml:space="preserve">
+            <source>The import into database tables has been finished.</source>
+        </trans-unit>
         <trans-unit id="menu.pages" xml:space="preserve">
             <source>Pages</source>
         </trans-unit>
@@ -16,6 +19,15 @@
         </trans-unit>
         <trans-unit id="wizard.importedTables" xml:space="preserve">
             <source>The tables have been imported.</source>
+        </trans-unit>
+        <trans-unit id="importTask.name">
+            <source>Import task</source>
+        </trans-unit>
+        <trans-unit id="importTask.description">
+            <source>The import task reads various CSV and XML files and writes their data into database tables.</source>
+        </trans-unit>
+        <trans-unit id="importTables">
+            <source>Tables for Import</source>
         </trans-unit>
     </body>
     </file>

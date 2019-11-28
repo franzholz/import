@@ -1,4 +1,16 @@
-(add new changes on top of this file)
+2019-11-28  Franz Holzinger  <franz@ttproducts.de>
+
+    * Add example slots
+    * Add scheduler tasks
+    * Support for TYPO3 9 together with typo3db_legacy
+
+2019-01-18  Franz Holzinger  <franz@ttproducts.de>
+
+    * Make usage of the scheduler
+
+2019-01-18  Franz Holzinger  <franz@ttproducts.de>
+
+    * rename Classes/Slots/ExampleSlots.php -> Classes/Slots/ExampleFunctionSlots.php
 
 2017-06-06  Franz Holzinger  <franz@ttproducts.de>
 
