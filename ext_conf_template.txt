@@ -1,0 +1,4 @@
+  # cat=basic/enable; type=boolean; label=Unused: Empty and unused configuration.
+dummy = 0
+
+
