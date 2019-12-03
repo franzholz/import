@@ -87,6 +87,7 @@ class ExampleFunctionSlots implements \TYPO3\CMS\Core\SingletonInterface
         $mode
     )
     {
+    // TODO: implement the import here
         $result = array(
             $tableName,
             $row,

@@ -83,7 +83,7 @@ class ImportTask extends \TYPO3\CMS\Scheduler\Task\AbstractTask {
             $result = true;
             $localDefinitionArray = \JambageCom\Import\Api\ImportApi::getLocalDefinitionArray();
             $definitionArray = array_merge($localDefinitionArray, $slotDefinitionArray);
-// 
+
             foreach ($definitionArray as $definition) {
                 if (
                     !isset($definition['tables']) ||

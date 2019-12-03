@@ -73,7 +73,6 @@ class ImportTablesWizardModuleFunctionController extends \TYPO3\CMS\Backend\Modu
                 $menu = $slotResult['1'];
             }
         }
-
         $execute = GeneralUtility::_GP('execute');
 
         if ($execute) {
@@ -104,13 +103,12 @@ class ImportTablesWizardModuleFunctionController extends \TYPO3\CMS\Backend\Modu
             $assigns['information'] =
                 $GLOBALS['LANG']->getLL('wizard.importedTables');
         } else {
-
-            // CSH
-            $assigns['cshItem'] = BackendUtility::cshItem('_MOD_web_func', 'tx_import');
-
             $view->setTemplatePathAndFilename(GeneralUtility::getFileAbsFileName(
                 'EXT:' . IMPORT_EXT . '/Resources/Private/Templates/ImportWizard.html'
             ));
+
+            // CSH
+            $assigns['cshItem'] = BackendUtility::cshItem('_MOD_web_func', 'tx_import');
 
             $assigns['menu'] = $menu;
         }

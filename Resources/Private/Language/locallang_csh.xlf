@@ -10,7 +10,7 @@
                 <source>Import Tables wizard</source>
             </trans-unit>
             <trans-unit id="tx_import.description" xml:space="preserve">
-                <source>Enables you to import files into database tables.
+                <source>Enables you to import files and other sources into database tables.
 Just check the tables you need.</source>
             </trans-unit>
         </body>
