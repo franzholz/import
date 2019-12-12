@@ -28,6 +28,8 @@ namespace JambageCom\Import\Api;
 
 use TYPO3\CMS\Core\Utility\GeneralUtility;
 
+use JambageCom\Import\Api\ImportFal;
+
 
 class Api {
     /**
@@ -148,14 +150,16 @@ class Api {
         return $result;
     }
 
+
     protected function convertToDestination(
-        $sourceRow,
-        $recordRelations,
+        array &$falRow,
+        array $sourceRow,
+        array $recordRelations,
         $destinationTableName
     ) {
         $result = array();
         foreach ($recordRelations as $relationKey => $relationValue) {
-            if (strpos($relationKey, 'import-') === 0) {
+            if (strpos($relationKey, 'import-') === 0) { // do not use the configuration part
                 continue;
             }
             $result[$relationKey] = $sourceRow[$relationValue];
@@ -172,12 +176,60 @@ class Api {
         }
         $result['tstamp'] = $this->getTime();
         foreach ($result as $field => $value) {
-            if (!isset($GLOBALS['TCA'][$destinationTableName]['columns'][$field])) {
+            if (
+                $GLOBALS['TCA'][$destinationTableName]['columns'][$field]['config']['foreign_table'] == 'sys_file_reference' ||
+                in_array($field, array('pid', 'tstamp', 'crdate'))
+            ) {
+                // FAL records will be added after the insertion of the record
+                $falRow[$field] = $value;
+            }
+        
+            if (
+                $field != 'pid' &&
+                (
+                    !isset($GLOBALS['TCA'][$destinationTableName]['columns'][$field]) ||
+                    isset($falRow[$field])
+                )
+            ) {
                 unset($result[$field]);
             }
         }
+        
+        $falRow['crdate'] = $falRow['tstamp'];
 
         return $result;
+    }
+    
+    public function addFal (
+        $destinationTableName,
+        $destinationFalRow,
+        $sourceRow,
+        $imageFolder
+    ) {
+        $falApi = GeneralUtility::makeInstance(ImportFal::class);
+
+        foreach ($destinationFalRow as $field => $value) {
+            if (
+                $imageFolder != '' &&
+                strlen($value) &&
+                $GLOBALS['TCA'][$destinationTableName]['columns'][$field]['config']['foreign_table'] == 'sys_file_reference'
+            ) {
+                $falRow = array();
+                $falRow['uid'] = $destinationFalRow['uid'];
+                $falRow['pid'] = $destinationFalRow['pid'];
+                $falRow[$field] = $sourceRow[$field];
+                $files = GeneralUtility::trimExplode(',', $falRow[$field]);
+
+                $falApi->add(
+                    $destinationTableName,
+                    $falRow,
+                    $field,
+                    $files,
+                    $GLOBALS['TCA']['tt_address']['columns'][$field]['config'],
+                    $imageFolder
+                );
+            }
+        }
     }
 
     public function importTableFromTable (
@@ -221,13 +273,13 @@ class Api {
                 $sourceTableName != '' &&
                 $destinationTableName != ''
             ) {
-                $where_clause = 'deleted=0';
+                $where_clause = 'deleted=0'; 
                 $allDestinationCategoryRows = [];
 
                 if (
                     $sourceMMTableName != '' &&
                     !empty($categoryRelations)
-                ) {
+                ) { // process the categories
                     $sourceCategoryRows =
                         $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
                             '*',
@@ -235,15 +287,19 @@ class Api {
                             $where_clause
                         );
                     $count = 0;
+                    $imageFolder = '';
                     foreach ($sourceCategoryRows as $sourceCategoryRow) {
                         $count++;
                         if ($count < 0) // changed during test development
                             break;
+                        $falRow = array(); // TODO: FAL for categories
                         $destinationCategoryRow =
                             $this->convertToDestination(
+                                $falRow,
                                 $sourceCategoryRow,
                                 $categoryRelations,
-                                $destinationCategoryTable
+                                $destinationCategoryTable,
+                                $imageFolder
                             );
 
                         $where = $where_clause;
@@ -285,12 +341,14 @@ class Api {
                     );
                 $count = 0;
                 while(
-                    ($count >= 0) &&
+                    ($count > -1) &&
                     ($sourceRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))
-                ) { // $count comparison is changed during test development
+                ) { // the $count comparison is changed during testing and development
                     $count++;
+                    $falRow = array();
                     $destinationRow =
                         $this->convertToDestination(
+                            $falRow,
                             $sourceRow,
                             $recordRelations,
                             $destinationTableName
@@ -305,7 +363,7 @@ class Api {
                         $where .= ' AND ' . $field . '=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($value, $destinationTableName);
                     }
 
-                    $checkDestinationRow = // verify that this category has not yet been imported
+                    $checkDestinationRow = // verify that this record has not yet been imported
                         $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
                             '*',
                             $destinationTableName,
@@ -319,6 +377,19 @@ class Api {
                             $destinationRow
                         );
                         $destinationUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+                        
+                        if ($destinationUid) {
+                            $imageFolder = $recordRelations['import-source-image-folder'];
+
+                            // add FAL records
+                            $falRow['uid'] = $destinationUid;
+                            $this->addFal(
+                                $destinationTableName,
+                                $falRow,
+                                $sourceRow,
+                                $imageFolder
+                            );
+                        }
 
                         if (
                             $destinationUid &&
@@ -360,8 +431,7 @@ class Api {
                                         $destinationMMRow
                                     );
                                 }
-                           }
-                            
+                           }                            
                         }
                     }
                 }

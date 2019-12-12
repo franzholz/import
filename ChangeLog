@@ -1,3 +1,7 @@
+2019-12-12  Franz Holzinger  <franz@ttproducts.de>
+
+    * Add support for the import into image FAL records referencing to the table sys_file_reference
+
 2019-12-03  Franz Holzinger  <franz@ttproducts.de>
 
     * Add an import method from one database table to another with an outer join to a category table.
