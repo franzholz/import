@@ -6,7 +6,7 @@
 
 $EM_CONF[$_EXTKEY] = array(
     'title' => 'Import of data into database tables',
-    'description' => 'This helps you to import data from text files into the tables of TYPO3 or its extensions.',
+    'description' => 'This helps you to import data from text files or tables into the tables of TYPO3 or extensions.',
     'category' => 'module',
     'author' => 'Franz Holzinger',
     'author_email' => 'franz@ttproducts.de',
@@ -15,7 +15,7 @@ $EM_CONF[$_EXTKEY] = array(
     'createDirs' => '',
     'clearCacheOnLoad' => 0,
     'author_company' => '',
-    'version' => '0.4.0',
+    'version' => '0.4.1',
     'constraints' => array(
         'depends' => array(
             'php' => '5.5.0-7.99.99',
@@ -24,6 +24,8 @@ $EM_CONF[$_EXTKEY] = array(
         'conflicts' => array(
         ),
         'suggests' => array(
+            'func' => '7.6.0-9.99.99',
+            'scheduler' => '7.6.0-9.99.99',
             'typo3db_legacy' => '1.0.0-1.1.99',
         ),
     ),
