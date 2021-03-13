@@ -1,3 +1,13 @@
+2021-03-13  Franz Holzinger  <franz@ttproducts.de>
+
+    * keep the tstamp from the original records.
+    * support for records without categories
+    * compatibility TYPO3 9.5: Mostly migrated to query builder
+
+2020-07-29  Franz Holzinger  <franz@ttproducts.de>
+
+    * Add new slots to make a check if an imported and converted record shall really be stored.
+
 2019-12-12  Franz Holzinger  <franz@ttproducts.de>
 
     * Add support for the import into image FAL records referencing to the table sys_file_reference

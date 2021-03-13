@@ -22,7 +22,12 @@
     "GPL-2.0-or-later"
   ],
   "require": {
-    "typo3/cms-core": ">=7.6.0,<9.99.99"
+    "typo3/cms-core": "^8.7, ^9.5"
+  },
+  "suggest": {
+    "typo3/cms-scheduler": "^8.7, ^9.5",
+    "friendsoftypo3/func": "^9.0",
+    "friendsoftypo3/typo3db-legacy": "^1.0"
   },
   "autoload": {
     "psr-4": {
@@ -30,8 +35,7 @@
     }
   },
   "replace": {
-    "jambagecom/import": "self.version",
-    "typo3-ter/import": "self.version"
+    "jambagecom/import": "self.version"
   },
   "extra": {
     "typo3/cms": {

@@ -26,9 +26,12 @@ namespace JambageCom\Import\Api;
  *
  */
 
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\DatabaseConnection;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
-    
-    
+
 
 
 class ImportFal {
@@ -73,7 +76,7 @@ class ImportFal {
 
             $sysfileRowArray = array();
             $falTable = 'sys_file_reference';
-            $where_clause = 'uid_foreign=' . intval($row['uid']) . ' AND tablenames='  . $GLOBALS['TYPO3_DB']->fullQuoteStr($tablename, $falTable) . ' AND fieldname=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($falFieldname, $falTable);
+            $where_clause = 'uid_foreign=' . intval($row['uid']) . ' AND tablenames=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($tablename, $falTable) . ' AND fieldname=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($falFieldname, $falTable);
             $where_clause .= $this->deleteClause('sys_file_reference');
 
             $sysfileRowArray =
@@ -148,6 +151,16 @@ class ImportFal {
                 );
             }
         }
+    }
+
+    /**
+    * @param string $tableName
+    * @return QueryBuilder
+    */
+    public function getQueryBuilder (string $tableName)
+    {
+        $result = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($tableName);
+        return $result;
     }
 }
 

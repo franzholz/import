@@ -23,7 +23,7 @@ use JambageCom\Import\Api\Api;
  */
 class ExampleSchedulerSlots implements \TYPO3\CMS\Core\SingletonInterface
 {
-    protected $tables = array('pages', 'tt_content');
+    protected $tables = ['pages', 'tt_content'];
 
     public function addDefinitionArray(
         $pObj,
@@ -31,23 +31,24 @@ class ExampleSchedulerSlots implements \TYPO3\CMS\Core\SingletonInterface
     )
     {
         $newDefinitionArray =
-            array(
+            [
                 'ext' => IMPORT_EXT,
                 'class' => null,
-                'tables' => array(
-                    array(
+                'tables' =>
+                [
+                    [
                         'table' => 'pages',
                         'title' => 'Pages'
-                    ),
-                    array(
+                    ],
+                    [
                         'table' => 'fe_users',
                         'title' => 'Front End Users'
-                    ),
-                )
-            );
+                    ],
+                ]
+            ];
 
         $definitionArray[] = $newDefinitionArray;
-        $result = array($pObj, $definitionArray);
+        $result = [$pObj, $definitionArray];
         return $result;
     }
 }

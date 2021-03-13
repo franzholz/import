@@ -23,7 +23,7 @@ use JambageCom\Import\Api\Api;
  */
 class ExampleFunctionSlots implements \TYPO3\CMS\Core\SingletonInterface
 {
-    protected $tables = array('pages', 'tt_content');
+    protected $tables = ['pages', 'tt_content'];
 
     public function getTables () {
         return $this->tables;
@@ -44,7 +44,7 @@ class ExampleFunctionSlots implements \TYPO3\CMS\Core\SingletonInterface
             $menuItem = $GLOBALS['LANG']->getLL('menu.' . $table);
             $menu[$table] = $menuItem;
         }
-        $result = array($pObj, $menu);
+        $result = [$pObj, $menu];
         return $result;
     }
 
@@ -88,13 +88,13 @@ class ExampleFunctionSlots implements \TYPO3\CMS\Core\SingletonInterface
     )
     {
     // TODO: implement the import here
-        $result = array(
+        $result = [
             $tableName,
             $row,
             $pid,
             $count,
             $mode
-        );
+        ];
         return $result;
     }
 }

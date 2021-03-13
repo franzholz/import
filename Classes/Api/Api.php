@@ -26,7 +26,12 @@ namespace JambageCom\Import\Api;
  *
  */
 
+use TYPO3\CMS\Core\Database\Connection;
+use TYPO3\CMS\Core\Database\ConnectionPool;
+use TYPO3\CMS\Core\Database\DatabaseConnec276tion;
+use TYPO3\CMS\Core\Database\Query\QueryBuilder;
 use TYPO3\CMS\Core\Utility\GeneralUtility;
+
 
 use JambageCom\Import\Api\ImportFal;
 
@@ -129,12 +134,25 @@ class Api {
                     );
 
                 if (isset($headerRow['uid'])) {
-                    $where_clause = 'uid=' . intval($row['uid']);
-                    $currentRow = $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
-                        'uid',
-                        $tableName,
-                        $where_clause
+                    $queryBuilder = $this->getQueryBuilder($tableName);
+                    $queryBuilder->setRestrictions(GeneralUtility::makeInstance(
+                        \TYPO3\CMS\Core\Database\Query\Restriction\FrontendRestrictionContainer::class)
                     );
+                        // get the single record
+                    $statement = $queryBuilder
+                        ->select('uid')
+                        ->from($tableName)
+                        ->where(
+                            $queryBuilder->expr()->eq(
+                                'uid',
+                                $queryBuilder->createNamedParameter(
+                                    intval($row['uid']),
+                                    \PDO::PARAM_INT
+                                )
+                            )
+                        )
+                        ->execute();                    
+                    $currentRow = $statement->fetch();
 
                     if ($currentRow) {
                         continue;
@@ -150,6 +168,11 @@ class Api {
         return $result;
     }
 
+    private function compute ($input) {
+        $phpcode = 'return (' . $input . ');';
+        $result = eval($phpcode);
+        return $result;
+    }
 
     protected function convertToDestination(
         array &$falRow,
@@ -158,13 +181,63 @@ class Api {
         $destinationTableName
     ) {
         $result = array();
-        foreach ($recordRelations as $relationKey => $relationValue) {
+        foreach ($recordRelations as $relationKey => $relationLine) {
             if (strpos($relationKey, 'import-') === 0) { // do not use the configuration part
                 continue;
             }
-            $result[$relationKey] = $sourceRow[$relationValue];
+
+            $relationExpressions = explode(' ', $relationLine);
+            $importedValues = [];
+            foreach ($relationExpressions as $relationExpression) {
+                $value = '';
+                $startPosition = null;
+                $endPosition = null;
+                $substringLength = 0;
+                if ($relationExpression == '&&' || $relationExpression == '||') {
+                    $importedValues[] = $relationExpression;
+                    continue;
+                }
+
+                if (($position = strpos($relationExpression, ':')) > 0) {
+                    $substringExpression = substr($relationExpression, $position + 1);
+                    if ($substringExpression) {
+                        $relationExpression = substr($relationExpression, 0, $position);
+                        $substringParts = explode('-', $substringExpression);
+
+                        if (count($substringParts) == 2) {
+                            $startPosition = intval($substringParts['0']) - 1;
+                            $endPosition = intval($substringParts['1']) - 1;
+                            $substringLength = $endPosition - $startPosition + 1;
+                        }
+                    }
+                }
+
+                $negative = false;
+                if (strpos($relationExpression, '!') === 0) {
+                    $relationExpression = substr($relationExpression, 1);
+                    $negative = true;
+                }
+
+                $value = $sourceRow[$relationExpression];
+
+                if ($startPosition !== null && $substringLength > 0) {
+                    $value = substr($value, $startPosition, $substringLength);
+                }
+                
+                if ($negative) {
+                    $value = intval(!$value);
+                }
+
+                $importedValues[] = $value;
+            }
+            $value = $importedValues['0'];
+            if (count($importedValues) > 2) {
+                $value = implode(' ', $importedValues);
+                $value = $this->compute($value);
+            }
+            $result[$relationKey] .= $value;
         }
-    
+
         $standardFields = $this->getStandardFields();
         foreach ($sourceRow as $field => $value) {
             if (
@@ -174,7 +247,11 @@ class Api {
                 $result[$field] = $value;
             }
         }
-        $result['tstamp'] = $this->getTime();
+
+        if (!isset($result['tstamp'])) {
+            $result['tstamp'] = $this->getTime();
+        }
+
         foreach ($result as $field => $value) {
             if (
                 $GLOBALS['TCA'][$destinationTableName]['columns'][$field]['config']['foreign_table'] == 'sys_file_reference' ||
@@ -186,15 +263,16 @@ class Api {
         
             if (
                 $field != 'pid' &&
+                $field != 'crdate' &&
+                $field != 'tstamp' &&
                 (
-                    !isset($GLOBALS['TCA'][$destinationTableName]['columns'][$field]) ||
-                    isset($falRow[$field])
+                    !isset($GLOBALS['TCA'][$destinationTableName]['columns'][$field])
                 )
             ) {
                 unset($result[$field]);
             }
         }
-        
+
         $falRow['crdate'] = $falRow['tstamp'];
 
         return $result;
@@ -248,9 +326,18 @@ class Api {
             }
             
             $sourceTableName = $recordRelations['import-source'];
-            $sourceMMTableName = $recordRelations['import-source-mm-category'];
-            $destinationMMTableName = $recordRelations['import-destination-mm-category'];
-            $destinationMMTableField = $recordRelations['import-destination-mm-category-field'];
+            $sourceMMTableName = '';
+            if (isset($recordRelations['import-source-mm-category'])) {
+                $sourceMMTableName = $recordRelations['import-source-mm-category'];
+            }
+            $destinationMMTableName = '';
+            $destinationMMTableField = '';
+            if (isset($recordRelations['import-destination-mm-category'])) {
+                $destinationMMTableName = $recordRelations['import-destination-mm-category'];
+                if (isset($recordRelations['import-destination-mm-category'])) {
+                    $destinationMMTableField = $recordRelations['import-destination-mm-category-field'];
+                }
+            }
             $destinationTableName = $recordRelations['import-destination'];
             $destinationExtension = $recordRelations['import-destination-extension'];
 
@@ -273,19 +360,31 @@ class Api {
                 $sourceTableName != '' &&
                 $destinationTableName != ''
             ) {
-                $where_clause = 'deleted=0'; 
                 $allDestinationCategoryRows = [];
 
                 if (
                     $sourceMMTableName != '' &&
                     !empty($categoryRelations)
                 ) { // process the categories
-                    $sourceCategoryRows =
-                        $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-                            '*',
-                            $sourceCategoryTable,
-                            $where_clause
-                        );
+                    $tableName = $sourceCategoryTable;
+                    $categoryQueryBuilder = $this->getQueryBuilder($tableName);
+                    $categoryQueryBuilder->getRestrictions()->removeAll();
+                        // get the single record
+                    $sourceCategoryRows = $categoryQueryBuilder
+                        ->select('*')
+                        ->from($tableName)
+                        ->where(
+                            $categoryQueryBuilder->expr()->eq(
+                                'deleted',
+                                $categoryQueryBuilder->createNamedParameter(
+                                    0,
+                                    \PDO::PARAM_INT
+                                )
+                            )
+                        )
+                        ->execute()
+                        ->fetchAll();
+
                     $count = 0;
                     $imageFolder = '';
                     foreach ($sourceCategoryRows as $sourceCategoryRow) {
@@ -302,48 +401,90 @@ class Api {
                                 $imageFolder
                             );
 
-                        $where = $where_clause;
+                        $tableName = $destinationCategoryTable;
+                        $categoryQueryBuilder = $this->getQueryBuilder($tableName);
+                        $categoryQueryBuilder->getRestrictions()->removeAll();
+                            // get the single record
+                        $categoryQueryBuilder
+                            ->select('*')
+                            ->from($tableName)
+                            ->where(
+                                $categoryQueryBuilder->expr()->eq(
+                                    'deleted',
+                                    $categoryQueryBuilder->createNamedParameter(
+                                        0,
+                                        \PDO::PARAM_INT
+                                    )
+                                )
+                            ->execute()
+                        );
+
                         $standardFields = $this->getStandardFields();
+                        $expressionCount = 0;
+                        $expressions = [];
                         foreach ($destinationCategoryRow as $field => $value) {
                             if (in_array($field, $standardFields)) {
                                 continue;
                             }
-                            $where .= ' AND ' . $field . '=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($value, $destinationCategoryTable);
+                            $expressions[] = $categoryQueryBuilder->expr()->eq(
+                                $field,
+                                $categoryQueryBuilder->createNamedParameter($value, \PDO::PARAM_STR)
+                            );
+                            $expressionCount++;
                         }
 
-                        $checkDestinationCategoryRow = // verify that this category has not yet been imported
-                            $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
-                                '*',
-                                $destinationCategoryTable,
-                                $where
-                            );
+                        if ($expressionCount > 1) {
+                            $categoryQueryBuilder->andWhere(implode(',', $expressions));
+                        }
+
+                        $categoryStatement =
+                            $categoryQueryBuilder
+                                ->execute();
+                        $checkDestinationCategoryRow = $categoryStatement->fetch();
                         
                         if ($checkDestinationCategoryRow) {
                             $allDestinationCategoryRows[$sourceCategoryRow['uid']] = $checkDestinationCategoryRow;
                         } else {
-                            $GLOBALS['TYPO3_DB']->exec_INSERTquery(
-                                $destinationCategoryTable,
-                                $destinationCategoryRow
-                            );
-                            $insertUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+                            $insertQueryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable('tt_content');
+                            $affectedRows = $insertQueryBuilder
+                                ->insert($destinationCategoryTable)
+                                ->values(
+                                    $destinationCategoryRow
+                                )
+                                ->execute();
+
+                            $insertUid = (int) $insertQueryBuilder->getConnection()->lastInsertId($destinationCategoryTable);
                             $destinationCategoryRow['uid'] = $insertUid;
                             $allDestinationCategoryRows[$sourceCategoryRow['uid']] = $destinationCategoryRow;
-
                         }
                     }
                 }
 
-                $res =
-                    $GLOBALS['TYPO3_DB']->exec_SELECTquery(
-                        '*',
-                        $sourceTableName,
-                        $where_clause
-                    );
+                $tableName = $sourceTableName;
+                $queryBuilder = $this->getQueryBuilder($tableName);
+                $queryBuilder->getRestrictions()->removeAll();
+                    // get the single record
+                $statement =
+                    $queryBuilder
+                    ->select('*')
+                    ->from($tableName)
+                    ->where(
+                        $queryBuilder->expr()->eq(
+                            'deleted',
+                            $queryBuilder->createNamedParameter(
+                                0,
+                                \PDO::PARAM_INT
+                            )
+                        )
+                    )
+                    ->execute();
+
                 $count = 0;
                 while(
-                    ($count > -1) &&
-                    ($sourceRow = $GLOBALS['TYPO3_DB']->sql_fetch_assoc($res))
-                ) { // the $count comparison is changed during testing and development
+                        // the $count comparison is changed during testing and development
+                    ($count > -1) && // On a live system here must be  > -1 ! 
+                    ($sourceRow = $statement->fetch())
+                ) { 
                     $count++;
                     $falRow = array();
                     $destinationRow =
@@ -354,31 +495,105 @@ class Api {
                             $destinationTableName
                         );
 
-                    $where = $where_clause;
-                    $standardFields = $this->getStandardFields();
-                    foreach ($destinationRow as $field => $value) {
-                        if (in_array($field, $standardFields)) {
-                            continue;
-                        }
-                        $where .= ' AND ' . $field . '=' . $GLOBALS['TYPO3_DB']->fullQuoteStr($value, $destinationTableName);
+                    $check = true;
+                    $duplicateCheckNeeded = true;
+                    $slotResult =
+                        $this->signalSlotDispatcher->dispatch(
+                            __CLASS__,
+                            'check',
+                            array(
+                                $destinationTableName,
+                                $destinationRow,
+                                $check,
+                                $duplicateCheckNeeded
+                            )
+                        );
+                    $check = $slotResult['2'];
+                    $duplicateCheckNeeded = $slotResult['3'];
+                    if (!$check) {
+                        continue;
                     }
 
-                    $checkDestinationRow = // verify that this record has not yet been imported
-                        $GLOBALS['TYPO3_DB']->exec_SELECTgetSingleRow(
-                            '*',
-                            $destinationTableName,
-                            $where
+                    $slotResult =
+                        $this->signalSlotDispatcher->dispatch(
+                            __CLASS__,
+                            'convert',
+                            array(
+                                $destinationTableName,
+                                $destinationRow,
+                                $modifiedRow
+                            )
                         );
+
+                    if (
+                        isset($slotResult['2']) &&
+                        is_array($slotResult['2'])
+                    ) {
+                        $destinationRow = $slotResult['2'];
+                    }
+                    $checkDestinationRow = false;
+                    
+                    if ($duplicateCheckNeeded) {
+                        $tableName = $destinationTableName;
+                        $destinationQueryBuilder = $this->getQueryBuilder($tableName);
+                        $destinationQueryBuilder->getRestrictions()->removeAll();
+                            // get the single record
+                        $destinationQueryBuilder
+                            ->select('*')
+                            ->from($tableName)
+                            ->where(
+                                $destinationQueryBuilder->expr()->eq(
+                                    'deleted',
+                                    $destinationQueryBuilder->createNamedParameter(
+                                        0,
+                                        \PDO::PARAM_INT
+                                    )
+                                )
+                            );
+
+                        $expressionCount = 0;
+                        $standardFields = $this->getStandardFields();
+                        $andX = $destinationQueryBuilder->expr()->andX();
+
+                        foreach ($destinationRow as $field => $value) {
+                            if (in_array($field, $standardFields)) {
+                                continue;
+                            }
+                            $andX->add($destinationQueryBuilder->expr()->eq(
+                                $field,
+                                $destinationQueryBuilder->createNamedParameter($value, \PDO::PARAM_STR)
+                            ));
+                            $expressionCount++;
+                        }
+
+                        if ($expressionCount > 1) {
+                            $destinationQueryBuilder->andWhere($andX);
+                        }
+                        $destinationStatement = $destinationQueryBuilder
+                            ->execute();
+                        $checkDestinationRow = $destinationStatement->fetch(); // verify that this record has not yet been imported
+                    }
 
                     if (!$checkDestinationRow) {
+                        foreach ($destinationRow as $field => $value) {
+                            if (is_null($value)) {
+                                $destinationRow[$field] = '';
+                            }
+                        }
+                        $insertQueryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($destinationTableName);
+                        $affectedRows = $insertQueryBuilder
+                            ->insert($destinationTableName)
+                            ->values(
+                                $destinationRow
+                            )
+                            ->execute();
 
-                        $GLOBALS['TYPO3_DB']->exec_INSERTquery(
-                            $destinationTableName,
-                            $destinationRow
-                        );
-                        $destinationUid = $GLOBALS['TYPO3_DB']->sql_insert_id();
+                        $destinationUid = (int) $insertQueryBuilder->getConnection()->lastInsertId($destinationTableName);
                         
-                        if ($destinationUid) {
+                        if (
+                            $destinationUid &&
+                            isset($recordRelations['import-source-image-folder'])
+                        ) {
                             $imageFolder = $recordRelations['import-source-image-folder'];
 
                             // add FAL records
@@ -396,14 +611,34 @@ class Api {
                             $sourceMMTableName != '' &&
                             $destinationMMTableName != ''
                         ) {
-                            $sourceUid = $sourceRow['uid'];
-                            $where = 'uid_local=' . intval($sourceUid);
-                            $sourceCategoryRows =
-                                $GLOBALS['TYPO3_DB']->exec_SELECTgetRows(
-                                    'uid_foreign,tablenames',
-                                    $sourceMMTableName,
-                                    $where
-                                );
+                            $tableName = $sourceMMTableName;
+                            $mmQueryBuilder = $this->getQueryBuilder($tableName);
+                            $mmQueryBuilder->getRestrictions()->removeAll();
+                                // get the single record
+                            $mmStatement = $mmQueryBuilder
+                                ->select('uid_foreign,tablenames')
+                                ->from($tableName)
+                                ->where(
+                                    $mmQueryBuilder->expr()->eq(
+                                        'deleted',
+                                        $mmQueryBuilder->createNamedParameter(
+                                            0,
+                                            \PDO::PARAM_INT
+                                        )
+                                    )
+                                )
+                                ->andWhere(
+                                    $mmQueryBuilder->expr()->eq(
+                                        'uid_local',
+                                        $mmQueryBuilder->createNamedParameter(
+                                            intval($sourceUid),
+                                            \PDO::PARAM_INT
+                                        )
+                                    )                                    
+                                )
+                                ->execute();
+
+                            $sourceCategoryRows = $mmStatement->fetchAll();
                             $categoryArray = [];
                             if ($sourceCategoryRows) {
                                 foreach($sourceCategoryRows as $sourceCategoryRow) {
@@ -426,10 +661,15 @@ class Api {
                                 foreach ($destinationCategoryArray as $category) {
                                     $destinationMMRow['uid_local'] = $category;
 
-                                    $GLOBALS['TYPO3_DB']->exec_INSERTquery(
-                                        $destinationMMTableName,
-                                        $destinationMMRow
-                                    );
+                                    $insertQueryBuilder = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($destinationMMTableName);
+                                    $affectedRows = $insertQueryBuilder
+                                        ->insert($destinationMMTableName)
+                                        ->values(
+                                            $destinationMMRow
+                                        )
+                                        ->execute();
+
+                                    $destinationMMUid = (int) $insertQueryBuilder->getConnection()->lastInsertId($destinationMMTableName);
                                 }
                            }                            
                         }
@@ -437,6 +677,16 @@ class Api {
                 }
             }
         }
+    }
+
+    /**
+    * @param string $tableName
+    * @return QueryBuilder
+    */
+    public function getQueryBuilder (string $tableName)
+    {
+        $result = GeneralUtility::makeInstance(ConnectionPool::class)->getQueryBuilderForTable($tableName);
+        return $result;
     }
 }
 

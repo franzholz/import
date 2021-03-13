@@ -18,6 +18,23 @@ if (TYPO3_MODE == 'BE') {
             $extensionConfiguration = unserialize($GLOBALS['TYPO3_CONF_VARS']['EXT']['extConf'][IMPORT_EXT]);
         }
 
+        if (
+            isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT]) &&
+            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT])
+        ) {
+            $tmpArray = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT];
+        }
+
+        if (isset($extensionConfiguration) && is_array($extensionConfiguration)) {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT] = $extensionConfiguration;
+            if (isset($tmpArray) && is_array($tmpArray)) {
+                $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT] =
+                    array_merge($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT], $tmpArray);
+            }
+        } else if (!isset($tmpArray)) {
+            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT] = array();
+        }
+
         define('IMPORT_CSHKEY', '_MOD_system_txschedulerM1_' . IMPORT_EXT); // key for the Context Sensitive Help
 
         /** @var \TYPO3\CMS\Extbase\SignalSlot\Dispatcher $signalSlotDispatcher */
@@ -62,6 +79,22 @@ if (TYPO3_MODE == 'BE') {
             'addDefinitionArray'                    // Slot name
         );
 
+        $signalSlotDispatcher->connect(
+            \JambageCom\Import\Api\Api::class,
+                                                    // Signal class name
+            'check',                                // Signal name
+            \JambageCom\Import\Slots\ExampleRecordSlots::class,   // Slot class name
+            'checkConvertedRecord'                    // Slot name
+        );
+
+        $signalSlotDispatcher->connect(
+            \JambageCom\Import\Api\Api::class,
+                                                    // Signal class name
+            'convert',                              // Signal name
+            \JambageCom\Import\Slots\ExampleRecordSlots::class,   // Slot class name
+            'converteRecord'                        // Slot name
+        );
+
         // Add the import task to the scheduler
         $GLOBALS['TYPO3_CONF_VARS']['SC_OPTIONS']['scheduler']['tasks'][\JambageCom\Import\Task\ImportTask::class] = array(
             'extension' => IMPORT_EXT,
@@ -70,22 +103,6 @@ if (TYPO3_MODE == 'BE') {
             'additionalFields' => \JambageCom\Import\Task\ImportTaskAdditionalFieldProvider::class
         );
 
-        if (
-            isset($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT]) &&
-            is_array($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT])
-        ) {
-            $tmpArray = $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT];
-        }
-
-        if (isset($extensionConfiguration) && is_array($extensionConfiguration)) {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT] = $extensionConfiguration;
-            if (isset($tmpArray) && is_array($tmpArray)) {
-                $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT] =
-                    array_merge($GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT], $tmpArray);
-            }
-        } else if (!isset($tmpArray)) {
-            $GLOBALS['TYPO3_CONF_VARS']['EXTCONF'][IMPORT_EXT] = array();
-        }
     });
 }
 
