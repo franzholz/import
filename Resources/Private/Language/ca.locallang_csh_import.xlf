@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns:t3="http://typo3.org/schemas/xliff" version="1.0">
+  <file t3:id="1415814985" source-language="en" datatype="plaintext" original="messages" date="2011-10-17T20:22:37Z" product-name="import" target-language="ca">
+    <header/>
+    <body>
+      <trans-unit id="task_class.alttitle" xml:space="preserve">
+				<source>Class of the task</source>
+			<target state="needs-translation">Class of the task</target></trans-unit>
+    </body>
+  </file>
+</xliff>

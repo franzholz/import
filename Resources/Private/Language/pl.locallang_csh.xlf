@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns:t3="http://typo3.org/schemas/xliff" version="1.0">
+  <file source-language="en" target-language="pl" datatype="plaintext" original="messages" date="2017-06-03T17:21:00Z" product-name="import">
+    <header/>
+    <body>
+      <trans-unit id="tx_import.importWizard">
+        <source>Execute the Import Wizard</source>
+        <target state="needs-translation">Execute the Import Wizard</target>
+      </trans-unit>
+      <trans-unit id="tx_import.alttitle">
+        <source>Import Tables wizard</source>
+        <target state="needs-translation">Import Tables wizard</target>
+      </trans-unit>
+      <trans-unit id="tx_import.description" xml:space="preserve">
+                <source>Enables you to import files and other sources into database tables.
+Just check the tables you need.</source>
+            <target state="needs-translation">Enables you to import files and other sources into database tables.
+Just check the tables you need.</target></trans-unit>
+    </body>
+  </file>
+</xliff>
