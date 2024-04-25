@@ -1,35 +1,41 @@
-<?xml version="1.0" encoding="utf-8"?>
-<xliff xmlns:t3="http://typo3.org/schemas/xliff" version="1.0">
-  <file source-language="en" target-language="pl" datatype="plaintext" original="messages" date="2017-06-03T17:21:00Z" product-name="import">
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:import/Resources/Private/Language/locallang.xlf" date="2017-06-03T17:21:00Z" product-name="import" target-language="pl">
     <header/>
     <body>
-      <trans-unit id="moduleFunction.import" xml:space="preserve">
-            <source>Import into database tables.</source>
-        <target state="needs-translation">Import into database tables.</target></trans-unit>
-      <trans-unit id="moduleFunction.importFinished" xml:space="preserve">
-            <source>The import into database tables has been finished.</source>
-        <target state="needs-translation">The import into database tables has been finished.</target></trans-unit>
-      <trans-unit id="menu.pages" xml:space="preserve">
-            <source>Pages</source>
-        <target state="needs-translation">Pages</target></trans-unit>
-      <trans-unit id="menu.tt_content" xml:space="preserve">
-            <source>Content</source>
-        <target state="needs-translation">Content</target></trans-unit>
-      <trans-unit id="wizard.importSelectedTable" xml:space="preserve">
-            <source>Import into the selected table</source>
-        <target state="needs-translation">Import into the selected table</target></trans-unit>
-      <trans-unit id="wizard.importedTables" xml:space="preserve">
-            <source>The tables have been imported.</source>
-        <target state="needs-translation">The tables have been imported.</target></trans-unit>
-      <trans-unit id="importTask.name">
+      <trans-unit id="moduleFunction.import" resname="moduleFunction.import">
+        <source>Import into database tables.</source>
+        <target state="needs-translation">Import into database tables.</target>
+      </trans-unit>
+      <trans-unit id="moduleFunction.importFinished" resname="moduleFunction.importFinished">
+        <source>The import into database tables has been finished.</source>
+        <target state="needs-translation">The import into database tables has been finished.</target>
+      </trans-unit>
+      <trans-unit id="menu.pages" resname="menu.pages">
+        <source>Pages</source>
+        <target state="needs-translation">Pages</target>
+      </trans-unit>
+      <trans-unit id="menu.tt_content" resname="menu.tt_content">
+        <source>Content</source>
+        <target state="needs-translation">Content</target>
+      </trans-unit>
+      <trans-unit id="wizard.importSelectedTable" resname="wizard.importSelectedTable">
+        <source>Import into the selected table</source>
+        <target state="needs-translation">Import into the selected table</target>
+      </trans-unit>
+      <trans-unit id="wizard.importedTables" resname="wizard.importedTables">
+        <source>The tables have been imported.</source>
+        <target state="needs-translation">The tables have been imported.</target>
+      </trans-unit>
+      <trans-unit id="importTask.name" resname="importTask.name">
         <source>Import task</source>
         <target state="needs-translation">Import task</target>
       </trans-unit>
-      <trans-unit id="importTask.description">
+      <trans-unit id="importTask.description" resname="importTask.description">
         <source>The import task reads various CSV and XML files and writes their data into database tables.</source>
         <target state="needs-translation">The import task reads various CSV and XML files and writes their data into database tables.</target>
       </trans-unit>
-      <trans-unit id="importTables">
+      <trans-unit id="importTables" resname="importTables">
         <source>Tables for Import</source>
         <target state="needs-translation">Tables for Import</target>
       </trans-unit>
