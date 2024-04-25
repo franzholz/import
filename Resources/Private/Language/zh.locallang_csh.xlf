@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff xmlns:t3="http://typo3.org/schemas/xliff" version="1.0">
-  <file source-language="en" target-language="zh-TW" datatype="plaintext" original="messages" date="2017-06-03T17:21:00Z" product-name="import">
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" datatype="plaintext" original="EXT:import/Resources/Private/Language/locallang_csh.xlf" date="2017-06-03T17:21:00Z" product-name="import" target-language="zh-TW">
     <header/>
     <body>
-      <trans-unit id="tx_import.importWizard">
+      <trans-unit id="tx_import.importWizard" resname="tx_import.importWizard">
         <source>Execute the Import Wizard</source>
         <target state="needs-translation">Execute the Import Wizard</target>
       </trans-unit>
-      <trans-unit id="tx_import.alttitle">
+      <trans-unit id="tx_import.alttitle" resname="tx_import.alttitle">
         <source>Import Tables wizard</source>
         <target state="needs-translation">Import Tables wizard</target>
       </trans-unit>
-      <trans-unit id="tx_import.description" xml:space="preserve">
+      <trans-unit id="tx_import.description" resname="tx_import.description" xml:space="preserve">
                 <source>Enables you to import files and other sources into database tables.
 Just check the tables you need.</source>
             <target state="needs-translation">Enables you to import files and other sources into database tables.
