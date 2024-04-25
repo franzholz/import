@@ -1,32 +1,33 @@
-<xliff version="1.0" xmlns:t3="http://typo3.org/schemas/xliff">
-    <file source-language="en" target-language="de" datatype="plaintext" original="messages" date="2017-06-03T17:21:00Z" product-name="import">
-    <header/>
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+	<file source-language="en" datatype="plaintext" original="EXT:import/Resources/Private/Language/locallang.xlf" date="2017-06-03T17:21:00Z" product-name="import">
+		<header/>
     <body>
-        <trans-unit id="moduleFunction.import" xml:space="preserve">
+        <trans-unit id="moduleFunction.import" resname="moduleFunction.import">
             <source>Import into database tables.</source>
         </trans-unit>
-        <trans-unit id="moduleFunction.importFinished" xml:space="preserve">
+        <trans-unit id="moduleFunction.importFinished" resname="moduleFunction.importFinished">
             <source>The import into database tables has been finished.</source>
         </trans-unit>
-        <trans-unit id="menu.pages" xml:space="preserve">
+        <trans-unit id="menu.pages" resname="menu.pages">
             <source>Pages</source>
         </trans-unit>
-        <trans-unit id="menu.tt_content" xml:space="preserve">
+        <trans-unit id="menu.tt_content" resname="menu.tt_content">
             <source>Content</source>
         </trans-unit>
-        <trans-unit id="wizard.importSelectedTable" xml:space="preserve">
+        <trans-unit id="wizard.importSelectedTable" resname="wizard.importSelectedTable">
             <source>Import into the selected table</source>
         </trans-unit>
-        <trans-unit id="wizard.importedTables" xml:space="preserve">
+        <trans-unit id="wizard.importedTables" resname="wizard.importedTables">
             <source>The tables have been imported.</source>
         </trans-unit>
-        <trans-unit id="importTask.name">
+        <trans-unit id="importTask.name" resname="importTask.name">
             <source>Import task</source>
         </trans-unit>
-        <trans-unit id="importTask.description">
+        <trans-unit id="importTask.description" resname="importTask.description">
             <source>The import task reads various CSV and XML files and writes their data into database tables.</source>
         </trans-unit>
-        <trans-unit id="importTables">
+        <trans-unit id="importTables" resname="importTables">
             <source>Tables for Import</source>
         </trans-unit>
     </body>
